@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% endif %}
+</head>
+<script>
+    function get_Bunch_name(str) {
+      document.getElementById("bunch_name").value = str;
+      document.getElementById("find_bunch_name").value = str;
+    }
+    </script>
+<body>
+<h1>{{ title }}</h1>
+
+<p>{{comments}}</p>
+{%if comments == '':%}
+<form method="post" action="/edit_del" id="form1">
+  <div>
+      <label for="bunch name : "> Bunch Name :  </label>
+      <input type="text" name="bunch_name" id="bunch_name" value="{{bn}}" disabled>[{{hash}}]<br>
+      
+      <textarea name="item_text" id="item_text" cols="150" rows="30">{{ item }}</textarea><br>
+      <button type="submit">{{ title }}</button>  
+      <input type="hidden" name="edit_del_bunch_name" id="edit_del_bunch_name" value="{{bn}}">
+      <input type="hidden" name="mode_post" id="mode_post" value="{{title}}">
+      <input type="hidden" name="item_post" id="item_post" value="{{item}}">
+      <input type="hidden" name="hash_post" id="hash_post" value="{{hash}}">
+      
+  </div>
+</form>
+{%endif%}
+<h3>Function List</h3>
+<ul>[&nbsp;
+  {% for idx in button_list %}
+  <!--<li>{{ idx }}</li>-->
+  <a href={{ idx }}>{{ idx }}</a>&nbsp;
+  {% endfor %}
+  ]
+</ul>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% endif %}
+</head>
+<body>
+<h1>XPS Info page.</h1>
+<h2>Wearhouse Node Count  : {{ wh_count }}(EA)</h2>
+<p>Bind list value: {{ button_list[2:4] }}</p>
+<!--<p>wh_list: {{ wh_list }}</p>-->
+<textarea cols="150" rows="20" readonly>{{ wh_list }}</textarea>
+<h3>Bunch List</h3>
+<ul>
+
+  {% for idx in bunch_list %}
+  <li>{{ idx }}</li>
+  {% endfor %}
+</ul>
+<p></p>
+<h3>Function List</h3>
+<ul>[&nbsp;
+  {% for idx in button_list %}
+  <!--<li>{{ idx }}</li>-->
+  <a href={{ idx }}>{{ idx }}</a>&nbsp;
+  {% endfor %}
+  ]
+</ul>
+
+</body>
+</html>

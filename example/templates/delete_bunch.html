@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% endif %}
+</head>
+<script>
+    function get_Bunch_name(str) {
+      document.getElementById("bunch_name").value = str;
+      document.getElementById("del_bunch_name").value = str;
+    }
+    </script>
+<body>
+<h1>{{ title }}</h1>
+
+<h3>Bunch List</h3>
+<ul>
+
+  {% for idx in bunch_list %}
+  <li onclick="get_Bunch_name('{{ idx }}')">{{ idx }}</li>
+  {% endfor %}
+</ul>
+<p>{{comments}}</p>
+<form method="post" action="/delete_bunch">
+  <div>
+      <label for="bunch name : "> Bunch Name :  </label>
+      <input type="text" name="bunch_name" id="bunch_name" disabled>
+      <button type="submit">Delete Bunch</button>  #Click bunch name in list
+      <input type="hidden" name="del_bunch_name" id="del_bunch_name">
+  </div>
+  <div class='button'>
+      
+  </div>
+</form>
+<h3>Function List</h3>
+<ul>[&nbsp;
+  {% for idx in button_list %}
+  <!--<li>{{ idx }}</li>-->
+  <a href={{ idx }}>{{ idx }}</a>&nbsp;
+  {% endfor %}
+  ]
+</ul>
+</body>
+</html>

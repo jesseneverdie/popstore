@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% endif %}
+</head>
+<script>
+    function get_Bunch_name(str) {
+      document.getElementById("bunch_name").value = str;
+      document.getElementById("find_bunch_name").value = str;
+    }
+    function proceed (mode, hash, item) {
+        var form = document.getElementById('form1');
+        form.setAttribute('method', 'post');
+        form.setAttribute('action', '/find');
+        form.style.display = 'hidden';
+        var hidden_item = document.getElementById('selected_item');
+        hidden_item.value = mode+"::"+hash+"::"+item;
+        document.body.appendChild(form);
+        form.submit();
+    }
+    </script>
+<body>
+<h1>{{ title }}</h1>
+
+<h3>Bunch List</h3>
+<ul>
+
+  {% for idx in bunch_list %}
+  <li onclick="get_Bunch_name('{{ idx }}')">{{ idx }}</li>
+  {% endfor %}
+</ul>
+<p>{{comments}}</p>
+<form method="post" action="/find" id="form1">
+  <div>
+      <label for="bunch name : "> Bunch Name :  </label>
+      <input type="text" name="bunch_name" id="bunch_name" value="{{bn}}" disabled>#Click bunch name in list<br>
+      <label for="Parameter : "> Parameter :  </label>
+      <input type="text" name="Parameter" id="Parameter"><br>
+      <textarea name="iterator_text" id="iterator_text" cols="150" rows="30">{{ format_str }}</textarea><br>
+      <button type="submit">Find Item</button>  
+      <input type="hidden" name="find_bunch_name" id="find_bunch_name" value="{{bn}}">
+  </div>
+  <div class='button'>
+      
+  </div>
+
+  <h3>Function List</h3>
+  <ul>[&nbsp;
+    {% for idx in button_list %}
+    <!--<li>{{ idx }}</li>-->
+    <a href={{ idx }}>{{ idx }}</a>&nbsp;
+    {% endfor %}
+    ]
+  </ul>
+  <h3>Result List</h3>
+
+  <ul>
+    {% for idx in ret_list %}
+    <!--<li>{{ idx }}</li>-->
+    <p>{{ idx }}
+      <button type="button" onclick="proceed('Edit','{{idx.hash_key}}', '{{idx.find_item}}');">Edit</button> 
+      <button type="button" onclick="proceed('Delete','{{idx.hash_key}}', '{{idx.find_item}}');">Del</button> 
+    {% endfor %}
+    <input type="hidden" name="selected_item" id="selected_item">
+  </ul>
+</form>
+</body>
+</html>
