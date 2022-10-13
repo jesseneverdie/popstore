@@ -105,7 +105,7 @@ def rt_run():
     dir = foldertext
     if Popstore.rt_stat != "Running":
         if init_sys() is True:
-            time.sleep(0.5)
+            time.sleep(0.3)
             ret = Popstore.rt_set(dir)
             if ret != "":
                 print("RT Set Error")
@@ -386,7 +386,7 @@ def chart_data():
                 pos += 1
             json_data = json.dumps(item)
             yield f"data:{json_data}\n\n"
-            time.sleep(1)
+            time.sleep(0.3)
 
     response = Response(stream_with_context(generate_random_data()), mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
