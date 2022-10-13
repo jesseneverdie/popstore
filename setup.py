@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='popstore',
-    version='0.0.2',
+    version='0.1.1',
     description='',
     url='https://github.com/jesseneverdie/popstore.git',
     author='Jesse Kim',
