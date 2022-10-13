@@ -48,3 +48,9 @@ To install the package execute the following command::
 or, if you want install it from sources::
 
   $ git clone https://github.com/jesseneverdie/popstore
+
+Additional Resources
+------------
+
+.. image:: exam_chart.png
+   :width: 1000
