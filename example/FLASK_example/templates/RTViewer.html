@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% endif %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+</head>
+<body onload="init('{{wh_info}}');">
+  <h1>{{ title }}</h1>
+  <table>
+    <tr>
+      <td>
+          <canvas id="MS" width="800" height="380"></canvas>
+      </td>
+      <td>
+          <canvas id="CPU"  width="800" height="380"></canvas>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <canvas id="txS" width="800" height="380"></canvas>
+      </td>
+      <td>
+        <canvas id="rxS" width="800" height="380"></canvas>
+      </td>
+    </tr>
+  </table>
+  <div class="container">
+         
+  </div>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<script>
+  function random_rgba() {
+    var o = Math.round, r = Math.random, s = 255;
+    //return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + r().toFixed(1) + ')';
+    return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + 0.7 + ')';
+  }
+
+
+  function init(wh_info) {
+    const config_temp = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [],
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'temp'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+        const config_MS = JSON.parse(JSON.stringify(config_temp));
+        config_MS.options.title.text = 'Memory usage(Kbytes)';
+        const config_CPU = JSON.parse(JSON.stringify(config_temp));
+        config_CPU.options.title.text = 'CPU Usage(%)';
+        const config_rxS = JSON.parse(JSON.stringify(config_temp));
+        config_rxS.options.title.text = 'Rx(Byte/Sec)';
+        const config_txS = JSON.parse(JSON.stringify(config_temp));
+        config_txS.options.title.text = 'Tx(Byte/Sec)';
+        console.log(wh_info);
+        let wh = JSON.parse(wh_info)
+        let config_list = [];
+        config_list.push(config_MS)
+        config_list.push(config_CPU)
+        config_list.push(config_rxS)
+        config_list.push(config_txS)
+        let pos = 0;
+        for (const property in wh) {
+          let color = random_rgba();
+          for(let i = 0; i < config_list.length; i++)
+          {
+            let item = {};
+            item['label'] = property;
+            item['backgroundColor'] = color;
+            item['borderColor'] = color;
+            item['data'] = [];
+            item['fill'] = false;
+
+            config_list[i].data.datasets.push(item);
+                /*{
+                  label: "Random Dataset", 
+                  backgroundColor: 'rgb(255, 99, 132)', 
+                  borderColor: 'rgb(255, 99, 132)',           
+                  data: [],
+                  fill: false,
+                }*/
+          }
+          pos++;
+        }
+        const context_MS = document.getElementById('MS').getContext('2d');
+        const context_CPU = document.getElementById('CPU').getContext('2d');
+        const context_rxS = document.getElementById('rxS').getContext('2d');
+        const context_txS = document.getElementById('txS').getContext('2d');
+        const MSChart = new Chart(context_MS, config_MS);
+        const CPUChart = new Chart(context_CPU, config_CPU);
+        const rxSChart = new Chart(context_rxS, config_rxS);
+        const txSChart = new Chart(context_txS, config_txS);
+        const source = new EventSource("/chart-data");
+        source.onmessage = function (event) 
+        {
+          const item = JSON.parse(event.data);
+          
+          
+          
+          let init = false;
+          let pos = 0;
+          for (idx in item)
+          {
+            if (config_MS.data.labels.length === 60) 
+            {
+              if(!init)
+              {
+                config_MS.data.labels.shift();
+                config_CPU.data.labels.shift();
+                config_rxS.data.labels.shift();
+                config_txS.data.labels.shift();
+              }
+              config_MS.data.datasets[pos].data.shift();
+              config_CPU.data.datasets[pos].data.shift();
+              config_rxS.data.datasets[pos].data.shift();
+              config_txS.data.datasets[pos].data.shift();
+            }
+            if(!init)
+            {
+              config_MS.data.labels.push(item[idx]['MS'].time);
+              config_CPU.data.labels.push(item[idx]['CPU'].time);
+              config_rxS.data.labels.push(item[idx]['rxS'].time);
+              config_txS.data.labels.push(item[idx]['txS'].time);
+              init = true;
+            }
+            
+            config_MS.data.datasets[pos].data.push(item[idx]['MS'].value);
+            config_CPU.data.datasets[pos].data.push(item[idx]['CPU'].value);
+            config_rxS.data.datasets[pos].data.push(item[idx]['rxS'].value);
+            config_txS.data.datasets[pos].data.push(item[idx]['txS'].value);
+            pos++;
+          }
+          MSChart.update();
+          CPUChart.update();
+          rxSChart.update();
+          txSChart.update();
+        }
+  }
+</script>
+  <p></p>
+  <h3>Function List</h3>
+  <ul>[&nbsp;
+    {% for idx in button_list %}
+    <!--<li>{{ idx }}</li>-->
+    <a href={{ idx }}>{{ idx }}</a>&nbsp;
+    {% endfor %}
+    ]
+  </ul>
+</body>
+</html>
