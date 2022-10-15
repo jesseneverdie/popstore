@@ -9,7 +9,7 @@ from metapensiero.pj.api import translates
 import random
 
 app = Flask(__name__)
-Popstore = popstore(ip='127.0.0.1')
+Pops = popstore(ip='127.0.0.1')
 blist = ["home", "create_bunch", "delete_bunch", "add", "edit", "delete", "find", "wh_worker", "RTViewer"]
 
 """ Real Time Report Pre-Set Data"""
@@ -23,13 +23,13 @@ def rt_Server_launcher(param):
     return "RT Server Running"
 
 def rt_launcher(func, func_args):
-    print(Popstore.set_whdata(func, func_args))
+    print(Pops.set_whdata(func, func_args))
     pass 
 
 def init_sys():
-    global Popstore
-    Popstore.set_addr(ipentry)
-    info = Popstore.get_info()
+    global Pops
+    Pops.set_addr(ipentry)
+    info = Pops.get_info()
     if info is None:
         return False
     wh_obj = json.loads(info)
@@ -76,14 +76,14 @@ def wh_match(str):
             return wh_name
     return
 def rt_draw():
-    global Popstore
+    global Pops
     global wh
     try:
-        if Popstore.scan_item.is_empty() is True:
+        if Pops.scan_item.is_empty() is True:
             return None
         while True:
-            if Popstore.scan_item.is_empty() is not True:
-                val = Popstore.scan_item.deQueue()
+            if Pops.scan_item.is_empty() is not True:
+                val = Pops.scan_item.deQueue()
                 ret_obj = parse_val(val)
                 if ret_obj is not None:
                     wh_name = wh_match(ret_obj['path'])
@@ -100,32 +100,32 @@ def rt_draw():
     pass
 
 def rt_run():
-    global Popstore
+    global Pops
     global wh
     dir = foldertext
-    if Popstore.rt_stat != "Running":
+    if Pops.rt_stat != "Running":
         if init_sys() is True:
             time.sleep(0.3)
-            ret = Popstore.rt_set(dir)
+            ret = Pops.rt_set(dir)
             if ret != "":
                 print("RT Set Error")
             else:
                 
-                    Popstore.scan_start_iter(rt_draw)
-                    Popstore.rt_stat = "Running"
+                    Pops.scan_start_iter(rt_draw)
+                    Pops.rt_stat = "Running"
                     rt_status == "Running"
         else:
             print("System INIT Error")
     else:
-        Popstore.scan_stop()
+        Pops.scan_stop()
     return
 rt_run()
 
 @app.route('/')
 @app.route('/home')
 def hello_world():
-    wh_list = json.loads(Popstore.get_info())['result']
-    bunch_list = json.loads(Popstore.get_bunch_list())['result']
+    wh_list = json.loads(Pops.get_info())['result']
+    bunch_list = json.loads(Pops.get_bunch_list())['result']
     wh_count = len(wh_list)
     return render_template(
 				'index.html',
@@ -149,13 +149,13 @@ def notice_page():
 def create_bunch():
     if request.method == 'POST':
         bn = request.form['bunch_name']
-        ret = Popstore.create_bunch(bn)
+        ret = Pops.create_bunch(bn)
         if json.loads(ret)['result'] == '1':
             ret = 'Created <"'+bn+'">'
         else:
             ret = 'Error create bunch <"'+bn+'">'
 
-        bunch_list = json.loads(Popstore.get_bunch_list())['result']
+        bunch_list = json.loads(Pops.get_bunch_list())['result']
         return render_template(
                     'create_bunch.html',
                     title     = 'Create Bunch',
@@ -164,7 +164,7 @@ def create_bunch():
                     bunch_list = bunch_list
         )
     else:
-        bunch_list = json.loads(Popstore.get_bunch_list())['result']
+        bunch_list = json.loads(Pops.get_bunch_list())['result']
         return render_template(
                     'create_bunch.html',
                     title     = 'Create Bunch',
@@ -176,13 +176,13 @@ def create_bunch():
 def delete_bunch():
     if request.method == 'POST':
         bn = request.form['del_bunch_name']
-        ret = Popstore.delete_bunch(bn)
+        ret = Pops.delete_bunch(bn)
         if json.loads(ret)['result'] == '1':
             ret = 'Deleted <"'+bn+'">'
         else:
             ret = 'Error delete bunch <"'+bn+'">'
 
-        bunch_list = json.loads(Popstore.get_bunch_list())['result']
+        bunch_list = json.loads(Pops.get_bunch_list())['result']
         return render_template(
                     'delete_bunch.html',
                     title     = 'Delete Bunch',
@@ -191,7 +191,7 @@ def delete_bunch():
                     bunch_list = bunch_list
         )
     else:
-        bunch_list = json.loads(Popstore.get_bunch_list())['result']
+        bunch_list = json.loads(Pops.get_bunch_list())['result']
         return render_template(
                     'delete_bunch.html',
                     title     = 'Delete Bunch',
@@ -213,7 +213,7 @@ def add_item():
         else:
             try:
                 item_obj = json.loads(item_txt)
-                ret = Popstore.add_item(bn, item_obj)
+                ret = Pops.add_item(bn, item_obj)
                 hash = json.loads(ret)['result']
                 if len(hash) == 64:
                     ret = 'Add Item <"'+hash+'"> : '+json.dumps(item_obj,  indent=2)[:30]
@@ -224,7 +224,7 @@ def add_item():
                 format_str = item_txt
                 ret = 'Error : '+ str(e)
         
-        bunch_list = json.loads(Popstore.get_bunch_list())['result']
+        bunch_list = json.loads(Pops.get_bunch_list())['result']
         return render_template(
                     'add_item.html',
                     title     = 'Add Item',
@@ -234,7 +234,7 @@ def add_item():
                     bunch_list = bunch_list
         )
     else:
-        bunch_list = json.loads(Popstore.get_bunch_list())['result']
+        bunch_list = json.loads(Pops.get_bunch_list())['result']
         item = {}
         item['key'] = "value"
         return render_template(
@@ -263,12 +263,12 @@ def find_item():
             edit_del(hash=hash, mode=mode, item=item)
             # if mode == "del":
                 
-                # ret = json.loads(Popstore.delete_item(bunch=bn,hash_key=hash))['result']
+                # ret = json.loads(Pops.delete_item(bunch=bn,hash_key=hash))['result']
                 # if ret == "1":
                 #     ret = "<"+hash+"> deleted."
                 # else:
                 #     ret = "<"+hash+"> delete fail."
-        bunch_list = json.loads(Popstore.get_bunch_list())['result']
+        bunch_list = json.loads(Pops.get_bunch_list())['result']
         format_str = inspect.getsource(find_func)
         ret_list = []
         if bn == '':
@@ -277,7 +277,7 @@ def find_item():
         else:
             try:
                 js_func_str = translates(iterator_text)
-                ret_find = Popstore.find_item_inline(bn, find_func, Parameter, js_func_str[0])
+                ret_find = Pops.find_item_inline(bn, find_func, Parameter, js_func_str[0])
                 ret_list = json.loads(ret_find)['result']
                 format_str = iterator_text
                 ret = ret
@@ -294,7 +294,7 @@ def find_item():
                     bunch_list = bunch_list
         )
     else:
-        bunch_list = json.loads(Popstore.get_bunch_list())['result']
+        bunch_list = json.loads(Pops.get_bunch_list())['result']
         format_str = inspect.getsource(find_func)
         return render_template(
                     'find_item.html',
@@ -325,13 +325,13 @@ def edit_del():
             item = request.form['item_text']
             if type(item) is str:
                 object_item = json.loads(item)
-                ret = json.loads(Popstore.edit_item(bunch=bn,hash_key=hash, item=object_item))['result']
+                ret = json.loads(Pops.edit_item(bunch=bn,hash_key=hash, item=object_item))['result']
             else:
-                ret = json.loads(Popstore.edit_item(bunch=bn,hash_key=hash, item=item))['result']
+                ret = json.loads(Pops.edit_item(bunch=bn,hash_key=hash, item=item))['result']
             if ret != "1":
                 comments = "Fail : "+comments
         else:
-            ret = json.loads(Popstore.delete_item(bunch=bn,hash_key=hash))['result']
+            ret = json.loads(Pops.delete_item(bunch=bn,hash_key=hash))['result']
             if ret != "1":
                 comments = "Fail : "+comments
 
@@ -347,8 +347,8 @@ def edit_del():
         )
 @app.route('/wh_worker', methods = ['POST', 'GET'])
 def wh_worker():
-    wh_list = json.loads(Popstore.get_info())['result']
-    bunch_list = json.loads(Popstore.get_bunch_list())['result']
+    wh_list = json.loads(Pops.get_info())['result']
+    bunch_list = json.loads(Pops.get_bunch_list())['result']
     wh_count = len(wh_list)
     return render_template(
 				'index.html',
