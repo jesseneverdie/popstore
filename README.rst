@@ -51,6 +51,7 @@ or, if you want install it from sources::
 
 Additional Resources
 ------------
-
+.. image:: rt_chart.png
+   :width: 1000
 .. image:: exam_chart.png
    :width: 1000
