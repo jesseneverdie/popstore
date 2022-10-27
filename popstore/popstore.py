@@ -128,7 +128,7 @@ class popstore:
                     break
         except:
             self.client_socket.close()
-            return None
+            return "Socket Error"
         finally:
             self.client_socket.close()
         return recv_data.decode('utf-8')
@@ -179,7 +179,7 @@ class popstore:
             p.get_warehouse_infomation();
             """
         ret = self.run(jsstr)
-        return ret
+        return ret.replace("\\n", "")
     def add_item(self, bunch, item):
         if type(item) is not str:
             item = json.dumps(item)
@@ -378,10 +378,10 @@ class popstore:
         func_str = ""
         for i in func_str_list:
             if i.find("var ") > -1:
-                i = i.replace("storekeeper_global_object","xyz131")
-                i = i.replace("wh_global_object","xyz132")
-                i = i.replace("wh_ret_val","xyz133")
-                i = i.replace("wh_hash_val","xyz134")
+                i = i.replace("var storekeeper_global_object","var xyz131")
+                i = i.replace("var wh_global_object","var xyz132")
+                i = i.replace("var wh_ret_val","var xyz133")
+                i = i.replace("var wh_hash_val","var xyz134")
             func_str += i + ";"
         func_str = func_str.replace("console.log(","popstore_log(")
         func_str = func_str.replace("datetime(","new Date(")
@@ -439,8 +439,7 @@ class popstore:
             set_whdata : function(func_name, func_code, func_args) 
                 {
                    var ret_val = pst_set_whdata(func_name, func_code, func_args);
-
-		            this.__set_result(ret_val);
+                   this.__set_result(ret_val);
                 }
             }
             """
